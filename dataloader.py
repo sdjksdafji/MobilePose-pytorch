@@ -156,19 +156,19 @@ class ToTensor(object):
 
 class PoseDataset(Dataset):
 
-    def __init__(self, csv_file, transform):
+    def __init__(self, data_path, csv_file, transform):
         
         with open(csv_file) as f:
             self.f_csv = list(csv.reader(f, delimiter='\t'))
         self.transform = transform
+        self.data_path = data_path
 
     def __len__(self):
         return len(self.f_csv)
         
     def __getitem__(self, idx):
-        ROOT_DIR = "/home/yuliang/code/deeppose_tf/datasets/mpii"
         line = self.f_csv[idx][0].split(",")
-        img_path = os.path.join(ROOT_DIR,'images',line[0])
+        img_path = os.path.join(self.data_path,'images',line[0])
         image = io.imread(img_path)
         height, width = image.shape[0], image.shape[1]
         pose = np.array([float(item) for item in line[1:]]).reshape([-1,2])

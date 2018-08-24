@@ -23,7 +23,7 @@ class DatasetFactory:
         pass
 
     @staticmethod
-    def get_train_dataset(modeltype, input_size, debug=DEBUG_MODE):
+    def get_train_dataset(data_path, modeltype, input_size, debug=DEBUG_MODE):
         """
         :param modeltype: "resnet" / "mobilenet"
         :return: type: PoseDataset
@@ -35,7 +35,7 @@ class DatasetFactory:
         if debug:
             csv_name = "train_joints-500.csv"
 
-        return PoseDataset(csv_file=os.path.join(ROOT_DIR, csv_name),
+        return PoseDataset(data_path, csv_file=os.path.join(data_path, csv_name),
                            transform=transforms.Compose([
                                Augmentation(),
                                # Rescale((inputsize, inputsize)),  # for resnet18
@@ -47,7 +47,7 @@ class DatasetFactory:
                            ]))
 
     @staticmethod
-    def get_test_dataset(modeltype, input_size, debug=DEBUG_MODE):
+    def get_test_dataset(data_path, modeltype, input_size, debug=DEBUG_MODE):
         """
         :param modeltype: resnet / mobilenet
         :return: type: PoseDataset
@@ -59,7 +59,8 @@ class DatasetFactory:
         if debug:
             csv_name = "test_joints-500.csv"
         return PoseDataset(
-            csv_file=os.path.join(ROOT_DIR, csv_name),
+            data_path,
+            csv_file=os.path.join(data_path, csv_name),
             transform=transforms.Compose([
                 # Rescale((inputsize, inputsize)),  # for resnet18
                 # # Wrap((inputsize, inputsize)),# for mobilenetv2

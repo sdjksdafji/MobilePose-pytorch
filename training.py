@@ -46,7 +46,7 @@ if __name__ == '__main__':
         minloss = 316.52189376 #changed expand ratio
         # minloss = 272.49565467 #fixed expand ratio
         learning_rate = 1e-05
-        net = Net().cuda()
+        net = Net()
         inputsize = 224
     elif modeltype == "mobilenet":
         modelname = "final-aug.t7"
@@ -54,14 +54,14 @@ if __name__ == '__main__':
         minloss = 396.84708708 # change expand ratio
         # minloss = 332.48316225 # fixed expand ratio
         learning_rate = 1e-06
-        net = MobileNetV2(image_channel=5).cuda()
+        net = MobileNetV2(image_channel=5)
         inputsize = 224
 
     # gpu setting
-    os.environ["CUDA_VISIBLE_DEVICES"]=args.gpu
-    torch.backends.cudnn.enabled = True
-    gpus = [0,1]
-    print("GPU NUM: %d"%(torch.cuda.device_count()))
+    # os.environ["CUDA_VISIBLE_DEVICES"]=args.gpu
+    # torch.backends.cudnn.enabled = True
+    # gpus = [0,1]
+    # print("GPU NUM: %d"%(torch.cuda.device_count()))
 
 
     logname = modeltype+'-log.txt'
@@ -69,25 +69,25 @@ if __name__ == '__main__':
     if not args.retrain:
         # load pretrain model
         # net = torch.load('./models/%s/%s'%(modeltype,modelname)).cuda()
-        net = torch.load('./models/%s/%s'%(modeltype,modelname)).cuda(device_id=gpus[0])
+        net = torch.load('./models/%s/%s'%(modeltype,modelname))
 
     net = net.train()
 
-    ROOT_DIR = "../deeppose_tf/datasets/mpii" # root dir to the dataset
+    DATA_DIR = "/home/sdjksdafji/Documents/others/MobilePose-pytorch/pose_dataset/mpii" # root dir to the dataset
     PATH_PREFIX = './models/{}/'.format(modeltype) # path to save the model
 
-    train_dataset = DatasetFactory.get_train_dataset(modeltype, inputsize)
+    train_dataset = DatasetFactory.get_train_dataset(DATA_DIR, modeltype, inputsize)
 
     train_dataloader = DataLoader(train_dataset, batch_size=batchsize,
                             shuffle=False, num_workers = num_threads)
 
 
-    test_dataset = DatasetFactory.get_test_dataset(modeltype, inputsize)
+    test_dataset = DatasetFactory.get_test_dataset(DATA_DIR, modeltype, inputsize)
     test_dataloader = DataLoader(test_dataset, batch_size=batchsize,
                             shuffle=False, num_workers = num_threads)
 
 
-    criterion = nn.MSELoss().cuda()
+    criterion = nn.MSELoss()
     # optimizer = optim.Adam(net.parameters(), lr=learning_rate, betas=(0.9, 0.999), eps=1e-08)
     optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9)
 
@@ -104,7 +104,7 @@ if __name__ == '__main__':
         for i, data in enumerate(train_dataloader):
             # training
             images, poses = data['image'], data['pose']
-            images, poses = Variable(images.cuda()), Variable(poses.cuda())
+            images, poses = Variable(images), Variable(poses)
             optimizer.zero_grad()
             outputs = net(images)
             loss = criterion(outputs, poses)
@@ -118,8 +118,8 @@ if __name__ == '__main__':
             for i_batch, sample_batched in enumerate(test_dataloader):
                 # calculate the valid loss
                 net_forward = net
-                images = sample_batched['image'].cuda()
-                poses = sample_batched['pose'].cuda()
+                images = sample_batched['image']
+                poses = sample_batched['pose']
                 outputs = net_forward(Variable(images, volatile=True))
                 valid_loss_epoch.append(mse_loss(outputs.data,poses))
 
