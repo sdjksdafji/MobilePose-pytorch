@@ -47,6 +47,8 @@ if __name__ == '__main__':
         # minloss = 272.49565467 #fixed expand ratio
         learning_rate = 1e-05
         net = Net()
+        if args.gpu != "-1":
+            net = net.cuda()
         inputsize = 224
     elif modeltype == "mobilenet":
         modelname = "final-aug.t7"
@@ -55,13 +57,16 @@ if __name__ == '__main__':
         # minloss = 332.48316225 # fixed expand ratio
         learning_rate = 1e-06
         net = MobileNetV2(image_channel=5)
+        if args.gpu != "-1":
+            net = net.cuda()
         inputsize = 224
 
     # gpu setting
-    # os.environ["CUDA_VISIBLE_DEVICES"]=args.gpu
-    # torch.backends.cudnn.enabled = True
-    # gpus = [0,1]
-    # print("GPU NUM: %d"%(torch.cuda.device_count()))
+    if args.gpu != "-1":
+        os.environ["CUDA_VISIBLE_DEVICES"]=args.gpu
+        torch.backends.cudnn.enabled = True
+        gpus = [0,1]
+        print("GPU NUM: %d"%(torch.cuda.device_count()))
 
 
     logname = modeltype+'-log.txt'
@@ -70,6 +75,8 @@ if __name__ == '__main__':
         # load pretrain model
         # net = torch.load('./models/%s/%s'%(modeltype,modelname)).cuda()
         net = torch.load('./models/%s/%s'%(modeltype,modelname))
+        if args.gpu != "-1":
+            net = net.cuda(device_id=gpus[0])
 
     net = net.train()
 
@@ -88,6 +95,8 @@ if __name__ == '__main__':
 
 
     criterion = nn.MSELoss()
+    if args.gpu != "-1":
+        criterion = criterion.cuda()
     # optimizer = optim.Adam(net.parameters(), lr=learning_rate, betas=(0.9, 0.999), eps=1e-08)
     optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9)
 
@@ -104,7 +113,10 @@ if __name__ == '__main__':
         for i, data in enumerate(train_dataloader):
             # training
             images, poses = data['image'], data['pose']
-            images, poses = Variable(images), Variable(poses)
+            if args.gpu != "-1":
+                images, poses = Variable(images.cuda()), Variable(poses.cuda())
+            else:
+                images, poses = Variable(images), Variable(poses)
             optimizer.zero_grad()
             outputs = net(images)
             loss = criterion(outputs, poses)
@@ -120,6 +132,9 @@ if __name__ == '__main__':
                 net_forward = net
                 images = sample_batched['image']
                 poses = sample_batched['pose']
+                if args.gpu != "-1":
+                    images = images.cuda()
+                    poses = poses.cuda()
                 outputs = net_forward(Variable(images, volatile=True))
                 valid_loss_epoch.append(mse_loss(outputs.data,poses))
 
