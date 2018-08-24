@@ -33,8 +33,13 @@ Some codes for mobilenetV2 and display are brought from [pytorch-mobilenet-v2](h
 ## Usage
 
 1. Training:
+GPU:
 ```shell
-export CUDA_VISIBLE_DEVICES=0; python training.py --model=mobilenet/resnet --gpu=0 --retrain=True
+export CUDA_VISIBLE_DEVICES=0; python3 training.py --model=mobilenet/resnet --gpu=0 --retrain=True
+```
+CPU:
+```shell
+python3 training.py --model=mobilenet/resnet --gpu=-1 --retrain=True
 ```
 2. Evaluation
 ```shell
