@@ -83,16 +83,18 @@ if __name__ == '__main__':
     DATA_DIR = "/home/sdjksdafji/Documents/others/MobilePose-pytorch/pose_dataset/mpii" # root dir to the dataset
     PATH_PREFIX = './models/{}/'.format(modeltype) # path to save the model
 
+    print("loading training dataset")
     train_dataset = DatasetFactory.get_train_dataset(DATA_DIR, modeltype, inputsize)
 
     train_dataloader = DataLoader(train_dataset, batch_size=batchsize,
                             shuffle=False, num_workers = num_threads)
+    print("training dataset loaded")
 
-
+    print("loading test dataset")
     test_dataset = DatasetFactory.get_test_dataset(DATA_DIR, modeltype, inputsize)
     test_dataloader = DataLoader(test_dataset, batch_size=batchsize,
                             shuffle=False, num_workers = num_threads)
-
+    print("test dataset loaded")
 
     criterion = nn.MSELoss()
     if args.gpu != "-1":
@@ -107,8 +109,10 @@ if __name__ == '__main__':
     train_loss_all = []
     valid_loss_all = []
 
+    print('Start Training')
+
     for epoch in range(1000):  # loop over the dataset multiple times
-        
+        print("start epoch {}".format(epoch))
         train_loss_epoch = []
         for i, data in enumerate(train_dataloader):
             # training
