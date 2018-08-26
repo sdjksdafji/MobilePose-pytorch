@@ -33,6 +33,7 @@ Some codes for mobilenetV2 and display are brought from [pytorch-mobilenet-v2](h
 ## Usage
 
 1. Training:
+
 GPU:
 ```shell
 export CUDA_VISIBLE_DEVICES=0; python3 training.py --model=mobilenet/resnet --gpu=0 --retrain=True
@@ -45,11 +46,11 @@ python3 training.py --model=mobilenet/resnet --gpu=-1 --retrain=True
 ```shell
 ln -s cocoapi/PythonAPI/pycocotools
 cd cocoapi/PythonAPI && make
-export CUDA_VISIBLE_DEVICES=0; python eval.py --model=mobilenet/resnet
+export CUDA_VISIBLE_DEVICES=0; python3 eval.py --model=mobilenet/resnet
 ```
 4. Realtime visualization:
 ```shell
-python run_webcam.py --model=mobilenet/resnet
+python3 run_webcam.py --model=mobilenet/resnet
 ```
 
 ## Contributors
